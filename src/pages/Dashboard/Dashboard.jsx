@@ -10,6 +10,8 @@ import {
 } from "react-google-maps";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { api } from "../../api.config";
 
 const MyMapComponent = compose(
   withProps({
@@ -24,7 +26,10 @@ const MyMapComponent = compose(
 )(props => {
   return (
     <GoogleMap defaultZoom={props.defaultProps.zoom} defaultCenter={props.defaultProps.center}>
-        <Marker position={props.defaultProps.center} />
+        {/* <Marker position={props.defaultProps.center} /> */}
+        {props.devices?.map((device) => (
+          <Marker position={device.location} />
+        ))}
     </GoogleMap>
   )
 }
@@ -39,7 +44,7 @@ const Dashboard = () => {
         },
         zoom: 18.88
     });
-
+    const [devices, setDevices] = useState([]);
     const currentUser = useSelector(state => state.user.currentUser);
     const navigate = useNavigate();
     
@@ -48,7 +53,23 @@ const Dashboard = () => {
       if(!currentUser){
         navigate("/");
       }
-    },[currentUser,navigate])
+    },[currentUser,navigate]);
+
+    const getDevices = async() => {
+      try{
+        const { data } = await axios({
+          method:'GET',
+          url:`${api}/device/list`
+        });
+        setDevices(data);
+      }catch(err){
+        console.log(err?.response?.data?.error?.message);
+      }
+    }
+
+    useEffect(() => {
+      getDevices();
+    },[])
     useEffect(() => {
       navigator.geolocation.getCurrentPosition((position) => {
         setDefaultProps(prevProps => ({
@@ -76,7 +97,7 @@ const Dashboard = () => {
         <div style={{width:'90%', marginLeft:'5%'}}>
           <div className="font-bold text-lg tracking-wide my-2">Devices Nearby</div>
         </div>
-        <MyMapComponent defaultProps={defaultProps} />
+        <MyMapComponent defaultProps={defaultProps} devices={devices} />
       </div>
     </div>
   );
