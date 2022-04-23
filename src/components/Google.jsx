@@ -12,6 +12,7 @@ const Google = () => {
     const dispatch = useDispatch();
     const responseGoogle = async(response) => {
         const { profileObj,tokenId } = response;
+        console.log(response);
         try{
             const {data} = await axios({
                 method:'POST',
