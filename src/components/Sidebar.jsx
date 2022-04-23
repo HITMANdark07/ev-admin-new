@@ -3,7 +3,7 @@ import { ShieldCheckIcon } from "@heroicons/react/solid";
 import { Link,useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setCurrentUser } from "../redux/user/user.action";
-import { AiOutlineBank,AiOutlineHistory } from 'react-icons/ai';
+import { AiOutlineBank,AiOutlineHistory,AiFillThunderbolt } from 'react-icons/ai';
 
 const Sidebar = ({activeMenu}) => {
 
@@ -102,7 +102,7 @@ const Sidebar = ({activeMenu}) => {
           <li>
             <Link
               to="/history"
-              className={`flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white ${location.pathname==="/products" && "bg-gray-700" } hover:bg-gray-100 dark:hover:bg-gray-700`}
+              className={`flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white ${location.pathname==="/history" && "bg-gray-700" } hover:bg-gray-100 dark:hover:bg-gray-700`}
             >
               <AiOutlineHistory color="grey" size={20} />
               <span className="flex-1 ml-3 whitespace-nowrap">Charging History</span>
@@ -111,10 +111,19 @@ const Sidebar = ({activeMenu}) => {
           <li>
             <Link
               to="/transactions"
-              className={`flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white ${location.pathname==="/products" && "bg-gray-700" } hover:bg-gray-100 dark:hover:bg-gray-700`}
+              className={`flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white ${location.pathname==="/transactions" && "bg-gray-700" } hover:bg-gray-100 dark:hover:bg-gray-700`}
             >
               <AiOutlineBank color="grey" size={20} />
               <span className="flex-1 ml-3 whitespace-nowrap">Transactions</span>
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/withdrawls"
+              className={`flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white ${location.pathname==="/withdrawls" && "bg-gray-700" } hover:bg-gray-100 dark:hover:bg-gray-700`}
+            >
+              <AiFillThunderbolt color="grey" size={20} />
+              <span className="flex-1 ml-3 whitespace-nowrap">Withdrawl Requests</span>
             </Link>
           </li>
           <li>

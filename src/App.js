@@ -7,6 +7,7 @@ import History from './pages/History/History';
 import Home from './pages/Home/Home';
 import Transaction from './pages/Transaction/Transaction';
 import Users from './pages/Users/Users';
+import Withdrawls from './pages/Withdrawls/Withdrawls';
 
 function App() {
 
@@ -14,12 +15,12 @@ function App() {
     <Router>
       <Routes>
         <Route path='/' element={<Home  />} />
-        {/* <Route path='/dashboard' element={<Dashboard  />}  /> */}
         <Route path="/dashboard" element={<Dashboard/>} />
         <Route path='/devices' element={<Devices />} />
         <Route path='/users' element={<Users  />} />
         <Route path='/transactions' element={<Transaction  />} />
         <Route path='/history' element={<History  />} />
+        <Route path='/withdrawls' element={<Withdrawls  />} />
       </Routes>
     </Router>
   );

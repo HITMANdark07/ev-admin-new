@@ -19,6 +19,7 @@ import {
   GoogleMap,
   Marker
 } from "react-google-maps";
+import AutoComplete from "../../components/AutoComplete";
 
 const Devices = () => {
 
@@ -75,7 +76,6 @@ const Devices = () => {
       clearTimeout(tm);
     }
   },[searchCode,init]);
-  
   
   return (
     <div>
@@ -172,19 +172,20 @@ const ModalView = ({closeModal,setDevices}) => {
     },
     zoom: 18.88
   });
-
+  const currentUser = useSelector(state => state.user.currentUser);
   const [values, setValues] = useState({
     code:'',
     rate:'',
     location:{
       lat:'',
       lng:''
-    }
+    },
+    owner:''
   })
   const [loading, setLoading] = useState(false);
-
-  const { code, rate} = values;
-
+  const [suggestions, setSuggestions] = useState([]);
+  const [userSearch, setUserSearch] = useState(currentUser?.user?.email);
+  const { code, rate, owner} = values;
   useEffect(() => {
     navigator.geolocation.getCurrentPosition((position) => {
       setDefaultProps(prevProps => ({
@@ -222,6 +223,10 @@ const ModalView = ({closeModal,setDevices}) => {
 
   const submitHandler = async(e) => {
     e.preventDefault();
+    if(!owner || !userSearch){
+      toast.warn("Add an owner Please");
+      return ;
+    }
     setLoading(true);
     try{
       const { data } = await axios({
@@ -252,6 +257,36 @@ const ModalView = ({closeModal,setDevices}) => {
       }
     }))
   };
+  useEffect(() => {
+    let timer = setTimeout(() => {
+      if(userSearch){
+        axios({
+          method:'GET',
+          url:`${api}/user/search/list?email=${userSearch}`
+        }).then(({data}) => {
+          setSuggestions(data);
+          let d = data.find((d) => d.email===userSearch);
+          if(d){
+            setValues((prevVals) => ({
+              ...prevVals,
+              owner:d._id
+            }))
+          }else{
+            setValues((prevVals) => ({
+              ...prevVals,
+              owner:''
+            }))
+          }
+        }).catch((err) => {
+          console.log(err);
+        })
+      }
+    },300);
+    return() => {
+      clearTimeout(timer);
+    }
+  },[userSearch]);
+
   const inpstyle= "appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm w-full";
   return (
     <Modals closeModal={closeModal}>
@@ -296,6 +331,7 @@ const ModalView = ({closeModal,setDevices}) => {
               placeholder="Enter Charging Price per min"
             />
           </div>
+          <AutoComplete type="text" placeholder="Add Owner Email Here" value={userSearch} suggestions={suggestions} onChange={(e) => setUserSearch(e.target.value)} />
           <div className="mb-5 w-full">
             <MyMapComponent defaultProps={defaultProps} locationChangeHandler={locationChangeHandler} />
           </div>
@@ -351,11 +387,15 @@ const UpdateModalView = ({closeModal,device,updateDevices}) => {
     location:{
       lat:device?.location?.lat,
       lng:device?.location?.lng
-    }
-  })
+    },
+    owner:device?.owner?._id
+  });
+
   const [loading, setLoading] = useState(false);
   const [loading2, setLoading2] =useState(false);
-  const { code, rate} = values;
+  const [suggestions, setSuggestions] = useState([]);
+  const [userSearch, setUserSearch] = useState(device?.owner?.email);
+  const { code, rate, owner} = values;
 
   // useEffect(() => {
   //   navigator.geolocation.getCurrentPosition((position) => {
@@ -394,6 +434,10 @@ const UpdateModalView = ({closeModal,device,updateDevices}) => {
 
   const submitHandler = async(e) => {
     e.preventDefault();
+    if(!owner || !userSearch){
+      toast.warn("Please Add an Owner");
+      return;
+    }
     setLoading(true);
     try{
       const { data } = await axios({
@@ -436,6 +480,35 @@ const UpdateModalView = ({closeModal,device,updateDevices}) => {
       }
     }))
   };
+  useEffect(() => {
+    let timer = setTimeout(() => {
+      if(userSearch){
+        axios({
+          method:'GET',
+          url:`${api}/user/search/list?email=${userSearch}`
+        }).then(({data}) => {
+          setSuggestions(data);
+          let d = data.find((d) => d.email===userSearch);
+          if(d){
+            setValues((prevVals) => ({
+              ...prevVals,
+              owner:d._id
+            }))
+          }else{
+            setValues((prevVals) => ({
+              ...prevVals,
+              owner:''
+            }))
+          }
+        }).catch((err) => {
+          console.log(err);
+        })
+      }
+    },300);
+    return() => {
+      clearTimeout(timer);
+    }
+  },[userSearch]);
 
   function download(url,filename){
     axios({
@@ -504,6 +577,7 @@ const UpdateModalView = ({closeModal,device,updateDevices}) => {
               placeholder="Enter Charging Price per min"
             />
           </div>
+          <AutoComplete type="text" placeholder="Add Owner Email Here" value={userSearch} suggestions={suggestions} onChange={(e) => setUserSearch(e.target.value)} />
           <div className="mb-5 w-full">
             <MyMapComponent defaultProps={defaultProps} locationChangeHandler={locationChangeHandler} />
           </div>
