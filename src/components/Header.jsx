@@ -6,7 +6,6 @@ import { useSelector } from "react-redux";
 const Header = () => {
 
   const user = useSelector(state => state.user?.currentUser?.user);
-  console.log(user);
   return (
     <nav className="bg-gray-800">
       <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">

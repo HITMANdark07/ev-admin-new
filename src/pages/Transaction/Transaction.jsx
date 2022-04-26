@@ -1,10 +1,21 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Header from "../../components/Header";
 import Sidebar from "../../components/Sidebar";
-
+import Pagination from '../../components/Pagination';
 
 const Transaction = () => {
 
+  const [skip, setSkip] = useState(0);
+  const [total, setTotal] = useState(49);
+  const [limit, setLimit] = useState(10);
+  const [transactions, setTransactions] = useState([]);
+
+  const init = () => {
+
+  }
+  useEffect(() => {
+    init();
+  },[skip, limit]);
     
   return (
     <div>
@@ -58,6 +69,7 @@ const Transaction = () => {
           
           </tbody> */}
           </table>
+          <Pagination total={total} skip={skip} limit={limit} setSkip={setSkip}  />
           </div>
 
 
