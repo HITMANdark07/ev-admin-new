@@ -7,7 +7,7 @@ const getArr = (nPages, startPage) => {
     let arr = [];
     while (temp--) {
       arr.push(start++);
-      if(temp==startPage || start>nPages) break;
+      if(temp===startPage || start>nPages) break;
     }
     return arr;
 };
@@ -25,13 +25,13 @@ const Pagination = ({ total, skip, limit, setSkip }) => {
           setPages(getArr(numberofPages,activePage))
           setSkip(0);
       }
-  },[activePage]);
+  },[activePage, numberofPages, limit, setSkip]);
 
   const handleActivePage = (page) => {
       setActivePage(page)
   }
   return (
-    <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+    <div className="bg-dark mb-100 px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
       <div className="flex-1 flex justify-between sm:hidden">
         <div className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
           Previous
@@ -73,6 +73,7 @@ const Pagination = ({ total, skip, limit, setSkip }) => {
             {pages.map((page) => (
                 <div
                 onClick={() => handleActivePage(page)}
+                key={page}
                 aria-current="page"
                 className={`${activePage===page ? "z-10 bg-indigo-50 border-indigo-500 text-indigo-600" :"bg-white border-gray-300 text-gray-500 hover:bg-gray-50"}relative inline-flex items-center px-4 py-2 border text-sm font-medium cursor-pointer`}
                 >

@@ -2,19 +2,32 @@ import React, { useEffect, useState } from "react";
 import Header from "../../components/Header";
 import Sidebar from "../../components/Sidebar";
 import Pagination from '../../components/Pagination';
+import axios from 'axios';
+import { api } from '../../api.config';
+import moment from 'moment'
 
 const Transaction = () => {
 
   const [skip, setSkip] = useState(0);
   const [total, setTotal] = useState(49);
+  //eslint-disable-next-line
   const [limit, setLimit] = useState(10);
   const [transactions, setTransactions] = useState([]);
 
-  const init = () => {
-
+  const init = (skip, limit) => {
+    axios({
+      method:'GET',
+      url:`${api}/transactions/list?limit=${limit}&skip=${skip}`
+    }).then(({data}) => {
+      setTotal(data.total);
+      setTransactions(data.transactions);
+    }).catch((err) => {
+      console.log(err);
+    })
   }
+  console.log(skip)
   useEffect(() => {
-    init();
+    init(skip, limit);
   },[skip, limit]);
     
   return (
@@ -36,18 +49,18 @@ const Transaction = () => {
           email
           </th>
           <th scope="col" className="px-6 py-3">
-          role
+          status
           </th>
           <th scope="col" className="px-6 py-3">
-          verified
+          amount
           </th>
           <th scope="col" className="px-6 py-3">
-          <span className="sr-only">Edit</span>
+          time
           </th>
           </tr>
           </thead>
-          {/* <tbody>
-          {users.map((user) => (
+          <tbody>
+          {transactions.map(({status,user, amount, createdAt}) => (
             <tr key={user._id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
             <th scope="row" className="px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap">
             {user.name}
@@ -55,19 +68,19 @@ const Transaction = () => {
             <td className="px-6 py-4">
             {user.email}
             </td>
-            <td className="px-6 py-4">
-            {renderRole(user.role)}
+            <td className={`px-6 py-4 ${status==="PENDING" ? "text-yellow-500": status==="FAIL" ? "text-red-600" : "text-lime-500"}`}>
+            {status}
             </td>
             <td className="px-6 py-4">
-            {user.verified===1 ? <MdVerified size={30} />: "Not-Verified"}
+            ₹{amount.toFixed(2)}/-
             </td>
-            <td className="px-6 py-4 text-right">
-            <Link to="/" className="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</Link>
+            <td className="px-6 py-4 ">
+            {moment(createdAt).format("DD MMM yy HH:MM A")}
             </td>
             </tr>
           ))}
           
-          </tbody> */}
+          </tbody>
           </table>
           <Pagination total={total} skip={skip} limit={limit} setSkip={setSkip}  />
           </div>
