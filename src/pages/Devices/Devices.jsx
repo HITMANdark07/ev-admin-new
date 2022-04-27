@@ -180,12 +180,39 @@ const ModalView = ({closeModal,setDevices}) => {
       lat:'',
       lng:''
     },
+    api:'',
+    gsm:'',
+    device_type:'GSM',
     owner:''
   })
   const [loading, setLoading] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
   const [userSearch, setUserSearch] = useState(currentUser?.user?.email);
-  const { code, rate, owner} = values;
+  const { code, rate, owner,location, device_type, api:Api, gsm} = values;
+
+  const toggle = () => {
+    setValues((state) => {
+      if(state.device_type==='GSM'){
+        return({
+          code:state.code,
+          rate:state.rate,
+          location:{lat:state.location.lat,lng:state.location.lng},
+          api:state.api,
+          owner:state.owner,
+          device_type:'WIFI'
+        })
+      }else{
+        return({
+          code:state.code,
+          rate:state.rate,
+          location:{lat:state.location.lat,lng:state.location.lng},
+          gsm:state.api,
+          owner:state.owner,
+          device_type:'GSM'
+        })
+      }
+    })
+  }
   useEffect(() => {
     navigator.geolocation.getCurrentPosition((position) => {
       setDefaultProps(prevProps => ({
@@ -228,11 +255,20 @@ const ModalView = ({closeModal,setDevices}) => {
       return ;
     }
     setLoading(true);
+    let postData = {
+      code:code,
+      rate:rate,
+      location:location,
+      owner:owner,
+      device_type:device_type
+    }
+    if(Api) postData['api'] = Api;
+    if(gsm) postData['gsm'] = gsm;
     try{
       const { data } = await axios({
         method:'POST',
         url:`${api}/device/create`,
-        data:values
+        data:postData
       })
       setDevices((prevDevices) => [...prevDevices,data])
       setLoading(false);
@@ -285,6 +321,7 @@ const ModalView = ({closeModal,setDevices}) => {
     return() => {
       clearTimeout(timer);
     }
+    //eslint-disable-next-line
   },[userSearch]);
 
   const inpstyle= "appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm w-full";
@@ -292,9 +329,26 @@ const ModalView = ({closeModal,setDevices}) => {
     <Modals closeModal={closeModal}>
       <div>
         <div className="flex flex-row self-center justify-between">
-        <div className="mt-2 mb-2 text-xl font-extrabold text-gray-900">
+        <div className="flex flex-row mt-2 mb-2 text-xl font-extrabold text-gray-900">
         ADD NEW DEVICE
         </div>
+        {/* toggle  */}
+        <div className="flex items-center justify-center ">
+          <label 
+            for="toogleA"
+            className="flex items-center cursor-pointer"
+          >
+            <div className="relative">
+              <input id="toogleA" type="checkbox" checked={device_type==='WIFI'} onClick={toggle} className="sr-only" />
+              <div className="w-10 h-4 bg-gray-400 rounded-full shadow-inner"></div>
+              <div className="dot absolute w-6 h-6 bg-white rounded-full shadow -left-1 -top-1 transition"></div>
+            </div>
+            <div className="ml-3 text-gray-700 font-medium">
+              {device_type}
+            </div>
+          </label>
+        </div>
+        {/* toggle  */}
         <div>
           <CgCloseR onClick={closeModal} size={25} style={{cursor:'pointer'}} />
         </div>
@@ -331,6 +385,37 @@ const ModalView = ({closeModal,setDevices}) => {
               placeholder="Enter Charging Price per min"
             />
           </div>
+          {device_type==='GSM' ? 
+          <div className="mb-5 w-full">
+            <label htmlFor="rate" className="sr-only">
+              Enter GSM Number of device
+            </label>
+            <input
+              name="gsm"
+              value={gsm}
+              onChange={changeHandler}
+              type="text"
+              required={device_type==='GSM'}
+              className={inpstyle}
+              placeholder="Enter GSM Number of device"
+            />
+          </div>
+        :
+          <div className="mb-5 w-full">
+            <label htmlFor="rate" className="sr-only">
+              Enter API of device
+            </label>
+            <input
+              name="api"
+              value={Api}
+              onChange={changeHandler}
+              type="text"
+              required={device_type==='WIFI'}
+              className={inpstyle}
+              placeholder="Enter API of device"
+            />
+          </div>
+          }
           <AutoComplete type="text" placeholder="Add Owner Email Here" value={userSearch} suggestions={suggestions} onChange={(e) => setUserSearch(e.target.value)} />
           <div className="mb-5 w-full">
             <MyMapComponent defaultProps={defaultProps} locationChangeHandler={locationChangeHandler} />
@@ -388,6 +473,9 @@ const UpdateModalView = ({closeModal,device,updateDevices}) => {
       lat:device?.location?.lat,
       lng:device?.location?.lng
     },
+    device_type:device.device_type,
+    api:device.api,
+    gsm:device.gsm,
     owner:device?.owner?._id
   });
 
@@ -395,8 +483,31 @@ const UpdateModalView = ({closeModal,device,updateDevices}) => {
   const [loading2, setLoading2] =useState(false);
   const [suggestions, setSuggestions] = useState([]);
   const [userSearch, setUserSearch] = useState(device?.owner?.email);
-  const { code, rate, owner} = values;
+  const { code, rate, owner,location, device_type, gsm, api:Api} = values;
 
+  const toggle = () => {
+    setValues((state) => {
+      if(state.device_type==='GSM'){
+        return({
+          code:state.code,
+          rate:state.rate,
+          location:{lat:state.location.lat,lng:state.location.lng},
+          api:state.api,
+          owner:state.owner,
+          device_type:'WIFI'
+        })
+      }else{
+        return({
+          code:state.code,
+          rate:state.rate,
+          location:{lat:state.location.lat,lng:state.location.lng},
+          gsm:state.api,
+          owner:state.owner,
+          device_type:'GSM'
+        })
+      }
+    })
+  }
   // useEffect(() => {
   //   navigator.geolocation.getCurrentPosition((position) => {
   //     setDefaultProps(prevProps => ({
@@ -439,11 +550,20 @@ const UpdateModalView = ({closeModal,device,updateDevices}) => {
       return;
     }
     setLoading(true);
+    let postData = {
+      code:code,
+      rate:rate,
+      location:location,
+      owner:owner,
+      device_type:device_type
+    }
+    if(Api) postData['api'] = Api;
+    if(gsm) postData['gsm'] = gsm;
     try{
       const { data } = await axios({
         method:'PUT',
         url:`${api}/device/update/${device._id}`,
-        data:values
+        data:postData
       })
       updateDevices(data,'u');
       setLoading(false);
@@ -541,6 +661,23 @@ const UpdateModalView = ({closeModal,device,updateDevices}) => {
             <GoDesktopDownload size={25} color="#2165f8" />
         </div>
         </div>
+        {/* toggle  */}
+        <div className="flex items-center justify-center ">
+          <label 
+            for="toogleA"
+            className="flex items-center cursor-pointer"
+          >
+            <div className="relative">
+              <input id="toogleA" type="checkbox" checked={device_type==='WIFI'} onClick={toggle} className="sr-only" />
+              <div className="w-10 h-4 bg-gray-400 rounded-full shadow-inner"></div>
+              <div className="dot absolute w-6 h-6 bg-white rounded-full shadow -left-1 -top-1 transition"></div>
+            </div>
+            <div className="ml-3 text-gray-700 font-medium">
+              {device_type}
+            </div>
+          </label>
+        </div>
+        {/* toggle  */}
         <div>
           <CgCloseR onClick={closeModal} size={25} style={{cursor:'pointer'}} />
         </div>
@@ -577,6 +714,41 @@ const UpdateModalView = ({closeModal,device,updateDevices}) => {
               placeholder="Enter Charging Price per min"
             />
           </div>
+
+          {device_type==='GSM' &&
+          <div className="mb-5 w-full">
+            <label htmlFor="gsm" className="sr-only">
+              Enter GSM Number of device
+            </label>
+            <input
+              name="gsm"
+              value={gsm}
+              onChange={changeHandler}
+              type="text"
+              required={device_type==='GSM'}
+              className={inpstyle}
+              placeholder="Enter GSM Number of device"
+            />
+          </div>
+          }
+          {
+            device_type==='WIFI' &&
+            <div className="mb-5 w-full">
+            <label htmlFor="api" className="sr-only">
+              Enter API of device
+            </label>
+            <input
+              name="api"
+              value={Api}
+              onChange={changeHandler}
+              type="text"
+              required={device_type==='WIFI'}
+              className={inpstyle}
+              placeholder="Enter API of device"
+            />
+          </div>
+          }
+
           <AutoComplete type="text" placeholder="Add Owner Email Here" value={userSearch} suggestions={suggestions} onChange={(e) => setUserSearch(e.target.value)} />
           <div className="mb-5 w-full">
             <MyMapComponent defaultProps={defaultProps} locationChangeHandler={locationChangeHandler} />

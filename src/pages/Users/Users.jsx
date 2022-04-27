@@ -6,19 +6,25 @@ import axios from "axios";
 import { api } from "../../api.config";
 import { useSelector } from "react-redux";
 import {MdVerified} from 'react-icons/md';
+import Pagination from "../../components/Pagination";
 
 const Users = () => {
 
   const [users, setUsers] = useState([]);
+  const [total, setTotal] = useState(10);
+  //eslint-disable-next-line
+  const [limit, setLimit] = useState(10);
+  const [skip, setSkip] = useState(0);
   const currentUser = useSelector(state => state.user.currentUser);
   const navigate = useNavigate();
-  const loadUser = async() => {
+  const loadUser = async(skip, limit) => {
     try{
       const { data } = await axios({
         method:'GET',
-        url:`${api}/user/list`
+        url:`${api}/user/list?limit=${limit}&skip=${skip}`
       });
-      setUsers(data);
+      setTotal(data.total);
+      setUsers(data.users);
     }catch(err){
       console.log(err)
     }
@@ -29,8 +35,8 @@ const Users = () => {
     }
   },[currentUser,navigate])
   useEffect(() => {
-    loadUser();
-  },[])
+    loadUser(skip, limit);
+  },[skip, limit])
     
   const renderRole =(role) => {
     switch (role){
@@ -96,6 +102,7 @@ const Users = () => {
           
           </tbody>
           </table>
+          <Pagination total={total} skip={skip} limit={limit} setSkip={setSkip}  />
           </div>
 
 
