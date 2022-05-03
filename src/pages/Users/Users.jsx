@@ -12,6 +12,7 @@ const Users = () => {
 
   const [users, setUsers] = useState([]);
   const [total, setTotal] = useState(10);
+  const [loading, setLoading] = useState(false);
   //eslint-disable-next-line
   const [limit, setLimit] = useState(10);
   const [skip, setSkip] = useState(0);
@@ -19,14 +20,17 @@ const Users = () => {
   const navigate = useNavigate();
   const loadUser = async(skip, limit) => {
     try{
+      setLoading(true);
       const { data } = await axios({
         method:'GET',
         url:`${api}/user/list?limit=${limit}&skip=${skip}`
       });
       setTotal(data.total);
       setUsers(data.users);
+      setLoading(false);
     }catch(err){
       console.log(err)
+      setLoading(false);
     }
   }
   useEffect(() => {
@@ -80,6 +84,16 @@ const Users = () => {
           </tr>
           </thead>
           <tbody>
+          {
+            loading && 
+            [1,2,3,4,5,6,7,8,9,10].map((skel) => (
+              <tr key={skel} class="animate-pulse space-x-4">
+              <td colSpan={7} class="flex-1  py-1 ">
+                  <div class="h-10 bg-slate-700 rounded"></div>
+              </td>
+              </tr>
+            ))
+          }
           {users.map((user) => (
             <tr key={user._id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
             <th scope="row" className="px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap">
