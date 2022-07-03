@@ -180,38 +180,19 @@ const ModalView = ({closeModal,setDevices}) => {
       lat:'',
       lng:''
     },
-    api:'',
-    gsm:'',
-    device_type:'GSM',
-    owner:''
+    owner:'',
+    privacy:false
   })
   const [loading, setLoading] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
   const [userSearch, setUserSearch] = useState(currentUser?.user?.email);
-  const { code, rate, owner,location, device_type, api:Api, gsm} = values;
+  const { code, rate, owner,location, privacy } = values;
 
   const toggle = () => {
-    setValues((state) => {
-      if(state.device_type==='GSM'){
-        return({
-          code:state.code,
-          rate:state.rate,
-          location:{lat:state.location.lat,lng:state.location.lng},
-          api:state.api,
-          owner:state.owner,
-          device_type:'WIFI'
-        })
-      }else{
-        return({
-          code:state.code,
-          rate:state.rate,
-          location:{lat:state.location.lat,lng:state.location.lng},
-          gsm:state.api,
-          owner:state.owner,
-          device_type:'GSM'
-        })
-      }
-    })
+    setValues((state) => ({
+          ...state,
+          privacy:!state.privacy
+        }))
   }
   useEffect(() => {
     navigator.geolocation.getCurrentPosition((position) => {
@@ -260,10 +241,8 @@ const ModalView = ({closeModal,setDevices}) => {
       rate:rate,
       location:location,
       owner:owner,
-      device_type:device_type
+      privacy:privacy
     }
-    if(Api) postData['api'] = Api;
-    if(gsm) postData['gsm'] = gsm;
     try{
       const { data } = await axios({
         method:'POST',
@@ -339,12 +318,13 @@ const ModalView = ({closeModal,setDevices}) => {
             className="flex items-center cursor-pointer"
           >
             <div className="relative">
-              <input id="toogleA" type="checkbox" checked={device_type==='WIFI'} onClick={toggle} className="sr-only" />
+              <input id="toogleA" type="checkbox" checked={privacy} 
+              onClick={toggle} className="sr-only" />
               <div className="w-10 h-4 bg-gray-400 rounded-full shadow-inner"></div>
               <div className="dot absolute w-6 h-6 bg-white rounded-full shadow -left-1 -top-1 transition"></div>
-            </div>
+            </div> 
             <div className="ml-3 text-gray-700 font-medium">
-              {device_type}
+              {privacy ? 'PRIVATE':'PUBLIC'}
             </div>
           </label>
         </div>
@@ -385,7 +365,7 @@ const ModalView = ({closeModal,setDevices}) => {
               placeholder="Enter Charging Price per min"
             />
           </div>
-          {device_type==='GSM' ? 
+          {/* {device_type==='GSM' ? 
           <div className="mb-5 w-full">
             <label htmlFor="rate" className="sr-only">
               Enter GSM Number of device
@@ -415,7 +395,7 @@ const ModalView = ({closeModal,setDevices}) => {
               placeholder="Enter API of device"
             />
           </div>
-          }
+          } */}
           <AutoComplete type="text" placeholder="Add Owner Email Here" value={userSearch} suggestions={suggestions} onChange={(e) => setUserSearch(e.target.value)} />
           <div className="mb-5 w-full">
             <MyMapComponent defaultProps={defaultProps} locationChangeHandler={locationChangeHandler} />
@@ -473,9 +453,10 @@ const UpdateModalView = ({closeModal,device,updateDevices}) => {
       lat:device?.location?.lat,
       lng:device?.location?.lng
     },
-    device_type:device.device_type,
-    api:device.api,
-    gsm:device.gsm,
+    // device_type:device.device_type,
+    // api:device.api,
+    // gsm:device.gsm,
+    privacy:device?.privacy,
     owner:device?.owner?._id
   });
 
@@ -483,57 +464,40 @@ const UpdateModalView = ({closeModal,device,updateDevices}) => {
   const [loading2, setLoading2] =useState(false);
   const [suggestions, setSuggestions] = useState([]);
   const [userSearch, setUserSearch] = useState(device?.owner?.email);
-  const { code, rate, owner,location, device_type, gsm, api:Api} = values;
+  const { code, rate, owner,location, privacy } = values;
 
   const toggle = () => {
-    setValues((state) => {
-      if(state.device_type==='GSM'){
-        return({
-          code:state.code,
-          rate:state.rate,
-          location:{lat:state.location.lat,lng:state.location.lng},
-          api:state.api,
-          owner:state.owner,
-          device_type:'WIFI'
-        })
-      }else{
-        return({
-          code:state.code,
-          rate:state.rate,
-          location:{lat:state.location.lat,lng:state.location.lng},
-          gsm:state.api,
-          owner:state.owner,
-          device_type:'GSM'
-        })
-      }
-    })
+    setValues((state) => ({
+          ...state,
+          privacy:!state.privacy
+        }))
   }
-  // useEffect(() => {
-  //   navigator.geolocation.getCurrentPosition((position) => {
-  //     setDefaultProps(prevProps => ({
-  //       ...prevProps,
-  //       center:{
-  //         lat: position.coords.latitude,
-  //         lng: position.coords.longitude
-  //       }
-  //     }))
-  //     setValues(prevProps => ({
-  //       ...prevProps,
-  //       location:{
-  //         lat: position.coords.latitude,
-  //         lng: position.coords.longitude
-  //       }
-  //     }))
-  //   },(err) => {
-  //     if(err.code === 1) {
-  //       alert("Error: Location Access is denied!");
-  //    } else if( err.code === 2) {
-  //       alert("Error: Position is unavailable!");
-  //    }
-  //   },{
-  //     timeout:60000
-  //   })
-  // },[])
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition((position) => {
+      setDefaultProps(prevProps => ({
+        ...prevProps,
+        center:{
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        }
+      }))
+      setValues(prevProps => ({
+        ...prevProps,
+        location:{
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        }
+      }))
+    },(err) => {
+      if(err.code === 1) {
+        alert("Error: Location Access is denied!");
+     } else if( err.code === 2) {
+        alert("Error: Position is unavailable!");
+     }
+    },{
+      timeout:60000
+    })
+  },[])
 
   const changeHandler = (e) => {
     let name = e.target.name;
@@ -555,10 +519,8 @@ const UpdateModalView = ({closeModal,device,updateDevices}) => {
       rate:rate,
       location:location,
       owner:owner,
-      device_type:device_type
+      privacy:privacy
     }
-    if(Api) postData['api'] = Api;
-    if(gsm) postData['gsm'] = gsm;
     try{
       const { data } = await axios({
         method:'PUT',
@@ -668,12 +630,12 @@ const UpdateModalView = ({closeModal,device,updateDevices}) => {
             className="flex items-center cursor-pointer"
           >
             <div className="relative">
-              <input id="toogleA" type="checkbox" checked={device_type==='WIFI'} onClick={toggle} className="sr-only" />
+              <input id="toogleA" type="checkbox" checked={privacy} onClick={toggle} className="sr-only" />
               <div className="w-10 h-4 bg-gray-400 rounded-full shadow-inner"></div>
               <div className="dot absolute w-6 h-6 bg-white rounded-full shadow -left-1 -top-1 transition"></div>
             </div>
             <div className="ml-3 text-gray-700 font-medium">
-              {device_type}
+              {privacy ? 'PRIVATE':'PUBLIC'}
             </div>
           </label>
         </div>
@@ -715,7 +677,7 @@ const UpdateModalView = ({closeModal,device,updateDevices}) => {
             />
           </div>
 
-          {device_type==='GSM' &&
+          {/* {device_type==='GSM' &&
           <div className="mb-5 w-full">
             <label htmlFor="gsm" className="sr-only">
               Enter GSM Number of device
@@ -747,7 +709,7 @@ const UpdateModalView = ({closeModal,device,updateDevices}) => {
               placeholder="Enter API of device"
             />
           </div>
-          }
+          } */}
 
           <AutoComplete type="text" placeholder="Add Owner Email Here" value={userSearch} suggestions={suggestions} onChange={(e) => setUserSearch(e.target.value)} />
           <div className="mb-5 w-full">

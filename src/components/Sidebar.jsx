@@ -4,6 +4,7 @@ import { Link,useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setCurrentUser } from "../redux/user/user.action";
 import { AiOutlineBank,AiOutlineHistory,AiFillThunderbolt } from 'react-icons/ai';
+import { MdOutlineVerifiedUser } from 'react-icons/md';
 
 const Sidebar = ({activeMenu}) => {
 
@@ -79,6 +80,15 @@ const Sidebar = ({activeMenu}) => {
               </span>
             </Link>
           </li> */}
+          <li>
+            <Link
+              to="/verify-users"
+              className={`flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white ${location.pathname==="/verify-users" && "bg-gray-700" } hover:bg-gray-100 dark:hover:bg-gray-700`}
+            >
+              <MdOutlineVerifiedUser color="grey" size={20} />
+              <span className="flex-1 ml-3 whitespace-nowrap">Verify Users</span>
+            </Link>
+          </li>
           <li>
             <Link
               to="/users"
